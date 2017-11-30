@@ -2,29 +2,56 @@
 # -*- coding: UTF-8 -*-
 import urllib
 import urllib2
-import sys
 import re
-sys.path.append("..")
+import csv
 import tocken
 
-def gitee_search():
-	page = 1
-	keyword = ["java","php","objective-c","go","android","javascript","c#","python","html","c++","c","swift","nodejs","ruby"]
-	search_url = "%s%s%s" %("https://gitee.com/search?search=",keyword[0],"&type=project&language=&&condition=")
-	print "generized esarch url:"
-	print search_url
-	print "/n"
+def search_basic(keyword,search_url,page):
 
+	search_url_generated = "%s%s%s%s" % (search_url, keyword, "&page=", str(page))
+	#search_url_generated = 'https://gitee.com/search?utf8=%E2%9C%93&search=java&group_id=&project_id=&type='
+	print "%s%s" % ("generized esarch url: ", search_url_generated)
 	try:
-		request = urllib2.Request(search_url)
+		request = urllib2.Request(search_url_generated)
 		response = urllib2.urlopen(request)
-		print "%s%d" %("Response with code: ",response.cods)
-		return response
+		print response.code
+		print 'page: '+ str(page)
+		content = response.read().decode('utf-8')
+		#print content
+		p1 = r'(?<=<a href=").+?(?=" target="_blank"><strong>)'
+		pattern = re.compile(p1)
+		content_items = re.findall(pattern, content)
+		if content_items:
+			print content_items
+			return content_items
+		else:
+			print 'no'
 	except urllib2.URLError, e:
-		if hasattr(e,"code"):
+		if hasattr(e, "code"):
 			print e.code
-		if hasattr(e,"reason"):
+		if hasattr(e, "reason"):
 			print e.reason
+	finally:
+		pass
+
+
+def get_repo_info(keywords,search_url,page=0,file_name='test.csv'):
+
+	search_max_page = 10
+	if(page != 0):
+		search_max_page = page
+
+	with open(file_name, 'a') as myFile:
+		my_writer = csv.writer(myFile)
+		for keyword in keywords:
+			my_writer.writerow([keyword])
+			for search_page in range(1,search_max_page,1):
+				search_result = search_basic(keyword,search_url,search_page)
+				for result_content in search_result:
+					my_writer.writerow([result_content])
+
+
+
 
 
 

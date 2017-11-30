@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import urllib
 import urllib2
+import gitee_webAPI
 import sys
 import re
 import csv
@@ -11,45 +12,12 @@ import tocken
 
 
 keywords = ["java","php","objective-c","go","android","javascript","c#","python","html","c++","c","swift","nodejs","ruby"]
-
-for keyword in keywords:
-	page = 1
-	search_url = "%s%s%s" % ("https://gitee.com/search?search=", keyword, "&type=project&language=&&condition=")
-	print "%s%s" % ("generized esarch url: ", search_url)
-
-	try:
-		request = urllib2.Request(search_url)
-		response = urllib2.urlopen(request)
-		print response.code
-		#print (' the name of class is : ',dir(response))
-		content = response.read().decode('utf-8')
-		#print content
-		#pattern = re.compile('<a href=.*? target="_blank"><strong>')
-		p1 = r'(?<=<a href=").+?(?=" target="_blank"><strong>)'
-		pattern = re.compile(p1)
-		content_items = re.findall(pattern,content)
-		if content_items:
-			#for content_item in content_items:
-			print content_items
-		else:
-			print 'no'
-
-
-
-	except urllib2.URLError, e:
-		if hasattr(e,"code"):
-			print e.code
-		if hasattr(e,"reason"):
-			print e.reason
-
-	print("break! \n\n\n\n")
-
-
-	with open('test.csv','a') as myFile:
-		my_writer = csv.writer(myFile)
-		my_writer.writerow([keyword,content_items])
+url_prefix = "https://gitee.com/search?utf8=%E2%9C%93&search="
+gitee_webAPI.get_repo_info(keywords,url_prefix)
 
 '''
+https://gitee.com/search?utf8=%E2%9C%93&search=java&group_id=&project_id=&type=
+
 key = r"<html><body><h1>hello world</h1></body></html>"
 p1 = r"(?<=<h1>).+?(?=</h1>)"  # 这是我们写的正则表达式规则，你现在可以不理解啥意思
 pattern1 = re.compile(p1)  # 我们在编译这段正则表达式
